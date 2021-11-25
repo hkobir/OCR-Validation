@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 dispatchTakePictureIntent();
                 recognizeTV.setText("");
+                detect.setText("Detect Text");
             }
         });
         detect.setOnClickListener(new View.OnClickListener() {
@@ -73,27 +74,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayDetectText(FirebaseVisionText firebaseVisionText) {
+        StringBuilder builder = new StringBuilder();
         List<FirebaseVisionText.TextBlock> textBlockList = firebaseVisionText.getTextBlocks();
         if (textBlockList.size() == 0) {
             Toast.makeText(MainActivity.this, "No text in this image", Toast.LENGTH_SHORT).show();
         } else {
-            for (FirebaseVisionText.TextBlock block : firebaseVisionText.getTextBlocks()) {
-                recognizeTV.setText(block.getText());
+            for (FirebaseVisionText.TextBlock block : textBlockList) {
                 for (FirebaseVisionText.Line line : block.getLines()) {
                     String lineText = line.getText();
+                    builder.append(lineText+"\n");
                     Log.d(MainActivity.class.getSimpleName(), "line: " + lineText);
-                    if (lineText.contains("ID NO")) {
-                        String id = lineText.substring(lineText.lastIndexOf("ID NO: ") + 1);
+                    if (lineText.contains("ID")) {
+                        String id = lineText.substring(lineText.lastIndexOf("NO: ") + 3);
                         checkUser(id);
                     }
 
                 }
             }
+            recognizeTV.setText(builder);
         }
     }
 
     private void checkUser(String id) {
-        Toast.makeText(MainActivity.this, "Id: " + id, Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, id, Toast.LENGTH_SHORT).show();
+        detect.setText(id);
     }
 
     public void init() {
